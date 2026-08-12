@@ -1,0 +1,18 @@
+ .play-list{
+        height:200px;
+ }
+
+
+ .play-list {
+        list-style-type: none;
+        padding: 0px;
+        margin: 0px;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    .selected {
+    background-color: #007bff; /* Цвет фона для выделенного элемента */
+    color: white; /* Цвет текста для выделенного элемента */
+}
+

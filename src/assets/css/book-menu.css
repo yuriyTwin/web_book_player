@@ -1,0 +1,33 @@
+.offcanvas .card{
+	background-color: #eee;
+	margin-bottom: 10px;
+}
+
+.offcanvas .app-menu .selected-item{
+	background-color: powderblue;
+}
+
+.offcanvas .btn-up {
+	background-image: url('../images/up-round-svgrepo-com.svg');
+	background-size: contain; /* Чтобы иконка полностью поместилась */
+	background-repeat: no-repeat;
+	background-position: center;
+	
+	position: fixed;
+    bottom: 10px;
+    right: 20px;
+    background-color: darkgray;
+	width: 60px;
+    height: 60px;
+	
+	border-radius: 50%;
+	opacity:0.7;
+}
+
+.offcanvas .selected{
+	background-color: powderblue;
+}
+
+.offcanvas .not-opened{
+	background-color: peachpuff;
+}
