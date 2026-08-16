@@ -47,7 +47,7 @@
 
 	function selectTrack(index){
 
-    		emit('select', index)
+    		emit('select', index, 0)
 	}
 
 </script>
