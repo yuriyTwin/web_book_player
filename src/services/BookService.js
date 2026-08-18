@@ -3,7 +3,7 @@
 
 export default class BookService {
   constructor(url, app, auth, options = {}) {
-    this.url = (url || '').replace(/\/++$/, ''); // remove trailing slash
+    this.url = (url || '').replace(/\/\/+$/, ''); // remove trailing slash
     this.app = app || '';
     this.auth = auth || {};
     this.timeout = options.timeout || 10000; // ms
