@@ -337,7 +337,7 @@ function setFile(file) {
 }
 
 
-async function selectTrack(index, time = null) {
+async function selectTrack(index, time = null, shouldPlay = true) {
 
     if (index < 0 || index >= playlist.value.length)
         return
@@ -372,16 +372,21 @@ async function selectTrack(index, time = null) {
 			console.warn('Failed to set currentTime', e)
 		}
 
-		try {
-			await audio.play()
-			playing.value = true
-			TrackingService.start()
-			// стартуем автосохранение при успешном запуске воспроизведения
-			startAutoSave()
-			// фиксируем время, чтобы не сразу пере-сохранить при pagehide
-			lastSaveAt.value = Date.now()
-		} catch (e) {
-			console.error(e)
+		if (shouldPlay) {
+			try {
+				await audio.play()
+				playing.value = true
+				TrackingService.start()
+				// стартуем автосохранение при успешном запуске воспроизведения
+				startAutoSave()
+				// фиксируем время, чтобы не сразу пере-сохранить при pagehide
+				lastSaveAt.value = Date.now()
+			} catch (e) {
+				console.error(e)
+			}
+		} else {
+			// не запускать воспроизведение автоматически
+			playing.value = false
 		}
 	}
 
@@ -423,7 +428,7 @@ function nextTrack() {
     // Убраны прямые вызовы TrackingService.save
     if (currentFileIndex.value < playlist.value.length - 1) {
 
-        selectTrack(currentFileIndex.value + 1, 0)
+        selectTrack(currentFileIndex.value + 1, 0, true)
 
     } else {
         // если трек последний — выключаем воспроизведение и автосохранение
@@ -439,7 +444,7 @@ function previousTrack() {
 
     if (currentFileIndex.value > 0) {
 
-        selectTrack(currentFileIndex.value - 1, 0)
+        selectTrack(currentFileIndex.value - 1, 0, true)
 
     }
 
@@ -537,8 +542,11 @@ function setPlaylist(playlistData, book) {
         book.filenum ?? 0
 
 
+    // Не воспроизводить автоматически при установке плейлиста/инициализации
     selectTrack(
-        currentFileIndex.value
+        currentFileIndex.value,
+        null,
+        false
     )
 
 
