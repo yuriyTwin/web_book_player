@@ -58,6 +58,8 @@
                         :src="bookImage"
                         @click="togglePlayPause">
 
+                    </img>
+
                 </div>
 
                 <div class="col-3 text-end">
@@ -118,6 +120,8 @@
                         step="1"
                         v-model="seek"
                         @input="seekAudio">
+
+                    </input>
 
                 </div>
 
@@ -235,7 +239,8 @@ onMounted(async () => {
         getState: () => ({
             book: props.book,
             fileNum: currentFileIndex.value,
-            time: audioElement.value?.currentTime ?? 0
+            time: audioElement.value?.currentTime ?? 0,
+            playing: playing.value
         })
     })
 
@@ -254,8 +259,9 @@ onBeforeUnmount(async () => {
 
     // Остановить автосохранение
     stopAutoSave()
+    TrackingService.stop()
 
-    // При размонтировании — если воспроизведение всё ещё идёт и с последнего save прошло >= 30s — попытаться сохранить
+    // При размонтировании — если воспроизведение всё ещё идёт и с последнего save прошло >= 30s — попытаться сох[...]
     try {
         if (playing.value) {
             const now = Date.now()
@@ -403,6 +409,7 @@ function togglePlayPause() {
 
         audioElement.value.pause()
         playing.value = false
+        TrackingService.stop()
         // при паузе автосохранение останавливаем и НЕ вызываем TrackingService.save сразу
         stopAutoSave()
         // (по требованию: НЕ сохраняем прямо при паузе — save только через 30с при воспроизведении)
@@ -422,6 +429,7 @@ function nextTrack() {
         // если трек последний — выключаем воспроизведение и автосохранение
         playing.value = false
         stopAutoSave()
+        TrackingService.stop()
     }
 
 }
