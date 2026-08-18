@@ -12,7 +12,7 @@ export default class BookService {
 
     async serarchBooks(searchText){
 	const response = await fetch(
-            `${this.url}/${this.app}/serarchBooks?search=${searchText}&email=${this.auth.user.email}`
+            `${this.url}/${this.app}/serarchBooks?search=${searchText}&email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
@@ -22,7 +22,7 @@ export default class BookService {
     async getBookList() {
 
         const response = await fetch(
-            `${this.url}/${this.app}/getBookList?email=${this.auth.user.email}`
+            `${this.url}/${this.app}/getBookList?email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
@@ -32,7 +32,7 @@ export default class BookService {
     async getLastPlay() {
 
         const response = await fetch(
-            `${this.url}/${this.app}/getLastTime?email=${this.auth.user.email}`
+            `${this.url}/${this.app}/getLastTime?email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
@@ -42,7 +42,7 @@ export default class BookService {
     async getLastTenBooks() {
 
         const response = await fetch(
-            `${this.url}/${this.app}/getLastTenBooks?email=${this.auth.user.email}`
+            `${this.url}/${this.app}/getLastTenBooks?email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
@@ -52,7 +52,7 @@ export default class BookService {
     async getLastTenNotOppenedBooks() {
 
         const response = await fetch(
-            `${this.url}/${this.app}/getLastTenNotOppenedBooks?email=${this.auth.user.email}`
+            `${this.url}/${this.app}/getLastTenNotOppenedBooks?email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
@@ -62,7 +62,7 @@ export default class BookService {
     async getlastTenOpened() {
 
         const response = await fetch(
-            `${this.url}/${this.app}/getlastTenOpened?email=${this.auth.user.email}`
+            `${this.url}/${this.app}/getlastTenOpened?email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
@@ -72,7 +72,7 @@ export default class BookService {
     async getCurrentCycleBooks() {
 
         const response = await fetch(
-            `${this.url}/${this.app}/getCurrentCycleBooks?email=${this.auth.user.email}`
+            `${this.url}/${this.app}/getCurrentCycleBooks?email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
@@ -82,7 +82,7 @@ export default class BookService {
     async getPlayList(bookId) {
 
         const response = await fetch(
-            `${this.url}/${this.app}/getPlayList?id=${bookId}&email=${this.auth.user.email}`
+            `${this.url}/${this.app}/getPlayList?id=${bookId}&email=${this.auth.user.email}&=${Date.now()}`
         );
 
         return await response.json();
