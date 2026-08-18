@@ -2,71 +2,78 @@
 
 class TrackingService {
 
+    constructor() {
 
-	constructor() {
+        this.auth = null
+        this.bookService = null
+        this.getState = null
+        this.timer = null
 
-        	this.auth = null
-        	this.bookService = null
-        	this.getState = null
-        	this.timer = null
+    }
 
-    	}
+    init({ auth, bookService, getState }) {
 
-    	init({ auth, bookService, getState }) {
+        this.auth = auth
+        this.bookService = bookService
+        this.getState = getState
 
-        	this.auth = auth
-        	this.bookService = bookService
-        	this.getState = getState
-
-    	}
+    }
 
 
-    	start() {
+    start() {
 
-        	this.stop()
+        this.stop()
 
-        	this.timer = setInterval(() => {
+        this.timer = setInterval(() => {
 
-            		this.save()
+            this.save()
 
-        	}, 30000)
+        }, 30000)
 
-    	}
+    }
 
-    	stop() {
+    stop() {
 
-        	if (this.timer) {
+        if (this.timer) {
 
-            		clearInterval(this.timer)
+            clearInterval(this.timer)
 
-            		this.timer = null
+            this.timer = null
 
-        	}
+        }
 
-    	}
+    }
 
-	async save() {
+    async save() {
 
-    		if (!this.auth.isAuthenticated())
-        		return
+        if (!this.auth || typeof this.auth.isAuthenticated !== 'function')
+            return
 
-    		if (!this.getState)
-        		return
+        if (!this.auth.isAuthenticated())
+            return
 
-    		const state = this.getState()
+        if (!this.getState)
+            return
 
-    		if (!state.book)
-        		return
+        const state = this.getState()
 
-    		await this.bookService.setPlayTime(
+        if (!state.book)
+            return
 
-        		state.book.id,
-        		state.fileNum,
-        		Math.floor(state.time)
+        // If caller provides a `playing` flag, only save when playing === true.
+        // If `playing` is undefined, keep backward compatibility and allow save.
+        if (typeof state.playing !== 'undefined' && !state.playing)
+            return
 
-    		)
+        await this.bookService.setPlayTime(
 
-	}
+            state.book.id,
+            state.fileNum,
+            Math.floor(state.time)
+
+        )
+
+    }
 }
 
 export default new TrackingService()
