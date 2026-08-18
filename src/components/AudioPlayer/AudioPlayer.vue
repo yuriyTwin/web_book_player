@@ -180,51 +180,17 @@
     	'refresh'
 	])
 
-/* --- Auto-save configuration --- */
-const SAVE_INTERVAL_MS = 30 * 1000 // 30 секунд
-const saveIntervalId = ref(null)
+/* --- Auto-save state (removed local interval) --- */
 const isSaving = ref(false)
-const lastSaveAt = ref(0) // timestamp ms последнего успешного save
 
-function startAutoSave() {
-    if (saveIntervalId.value) return // уже запущен
-    // не вызываем save сразу, первый запуск через SAVE_INTERVAL_MS
-    saveIntervalId.value = setInterval(async () => {
-        if (!playing.value) return // строго только при воспроизведении
-        if (isSaving.value) return
-        isSaving.value = true
-        try {
-            await TrackingService.save()
-            lastSaveAt.value = Date.now()
-        } catch (e) {
-            console.error('Auto save failed', e)
-        } finally {
-            isSaving.value = false
-        }
-    }, SAVE_INTERVAL_MS)
-}
-
-function stopAutoSave() {
-    if (!saveIntervalId.value) return
-    clearInterval(saveIntervalId.value)
-    saveIntervalId.value = null
-}
-
-/* pagehide handler: выполняем save ТОЛЬКО если идёт воспроизведение и прошло >= 30s с последнего save */
+/* pagehide handler: выполняем save ТОЛЬКО если идёт воспроизведение */
 async function pagehideHandler() {
     try {
         if (!playing.value) return
-        const now = Date.now()
-        if (now - (lastSaveAt.value || 0) >= SAVE_INTERVAL_MS && !isSaving.value) {
-            isSaving.value = true
-            try {
-                await TrackingService.save()
-                lastSaveAt.value = now
-            } catch (e) {
-                console.error('pagehide save failed', e)
-            } finally {
-                isSaving.value = false
-            }
+        try {
+            await TrackingService.save()
+        } catch (e) {
+            console.error('pagehide save failed', e)
         }
     } catch (e) {
         console.error('pagehide handler error', e)
@@ -257,23 +223,16 @@ onBeforeUnmount(async () => {
     window.removeEventListener("pagehide", pagehideHandler)
     window.removeEventListener("resize", resizePlayer)
 
-    // Остановить автосохранение
-    stopAutoSave()
+    // Остановить TrackingService
     TrackingService.stop()
 
-    // При размонтировании — если воспроизведение всё ещё идёт и с последнего save прошло >= 30s — попытаться сох[...]
+    // При размонтировании — если воспроизведение всё ещё идёт — попытаться сохранить текущее состояние
     try {
         if (playing.value) {
-            const now = Date.now()
-            if (now - (lastSaveAt.value || 0) >= SAVE_INTERVAL_MS && !isSaving.value) {
-                isSaving.value = true
-                try {
-                    await TrackingService.save()
-                } catch (e) {
-                    console.error('final save on unmount failed', e)
-                } finally {
-                    isSaving.value = false
-                }
+            try {
+                await TrackingService.save()
+            } catch (e) {
+                console.error('final save on unmount failed', e)
             }
         }
     } catch (e) {
@@ -343,8 +302,6 @@ async function selectTrack(index, time = null, shouldPlay = true) {
         return
 
 
-    // Убраны явные saves здесь — автосохранение будет происходить через интервал при воспроизведении
-
     currentFileIndex.value = index
 
     currentFile.value =
@@ -377,10 +334,6 @@ async function selectTrack(index, time = null, shouldPlay = true) {
 				await audio.play()
 				playing.value = true
 				TrackingService.start()
-				// стартуем автосохранение при успешном запуске воспроизведения
-				startAutoSave()
-				// фиксируем время, чтобы не сразу пере-сохранить при pagehide
-				lastSaveAt.value = Date.now()
 			} catch (e) {
 				console.error(e)
 			}
@@ -407,17 +360,12 @@ function togglePlayPause() {
         audioElement.value.play()
         playing.value = true
         TrackingService.start()
-        startAutoSave()
-        lastSaveAt.value = Date.now()
 
     } else {
 
         audioElement.value.pause()
         playing.value = false
         TrackingService.stop()
-        // при паузе автосохранение останавливаем и НЕ вызываем TrackingService.save сразу
-        stopAutoSave()
-        // (по требованию: НЕ сохраняем прямо при паузе — save только через 30с при воспроизведении)
 
     }
 
@@ -425,15 +373,13 @@ function togglePlayPause() {
 
 
 function nextTrack() {
-    // Убраны прямые вызовы TrackingService.save
     if (currentFileIndex.value < playlist.value.length - 1) {
 
         selectTrack(currentFileIndex.value + 1, 0, true)
 
     } else {
-        // если трек последний — выключаем воспроизведение и автосохранение
+        // если трек последний — выключаем воспроизведение
         playing.value = false
-        stopAutoSave()
         TrackingService.stop()
     }
 
