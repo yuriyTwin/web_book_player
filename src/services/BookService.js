@@ -99,9 +99,9 @@ export default class BookService {
 
   async setPlayTime(bookid, filenum, time) {
     return this._fetchJson('setPlayTime', {
-      bookId: String(bookid || ''),
-      fileNum: String(filenum || ''),
-      time: String(time || '')
+      bookId: String(bookid ?? ''),
+      fileNum: String(filenum ?? ''),
+      time: String(time ?? '')
     });
   }
 }
